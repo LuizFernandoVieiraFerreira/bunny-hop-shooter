@@ -25,6 +25,6 @@ The Pico-8 is a virtual machine and game engine created by Lexaloffle Games. It 
   - Sprites		256 8x8 sprites
   - Map		128x32 cels
 
-# License
+## License
 
 Licensed under TODO
