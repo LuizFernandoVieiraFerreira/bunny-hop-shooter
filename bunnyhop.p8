@@ -253,7 +253,40 @@ function init_game()
     },
   }
 
+  next_obj_pattern = 1
   future_objects = {
+    {
+      { tb = items, o = create_coin(128 + 16, 56) },
+      { tb = items, o = create_coin(128 + 16, 72) },
+      { tb = items, o = create_coin(128 + 32, 56) },
+      { tb = items, o = create_coin(128 + 32, 72) },
+      { tb = items, o = create_coin(128 + 48, 56) },
+      { tb = items, o = create_coin(128 + 48, 72) },
+      { tb = items, o = create_coin(128 + 64, 56) },
+      { tb = items, o = create_coin(128 + 64, 72) },
+      { tb = items, o = create_coin(128 + 80, 56) },
+      { tb = items, o = create_coin(128 + 80, 72) },
+      { tb = items, o = create_coin(128 + 96, 56) },
+      { tb = items, o = create_coin(128 + 96, 72) },
+    },
+    {
+      { tb = enemies, o = create_bomb(128, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 72, 56, { type = 'idle' }) },
+    },
+    {
+      { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 8, 88, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 40, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 40, 88, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 56, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 56, 56, { type = 'idle' }) },
+      { tb = items, o = create_coin(128 + 72, 72) },
+      { tb = items, o = create_coin(128 + 72, 88) },
+      { tb = enemies, o = create_bomb(128 + 88, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 88, 56, { type = 'idle' }) },
+      { tb = items, o = create_coin(128 + 120, 40) },
+      { tb = items, o = create_coin(128 + 120, 56) },
+    },
     -- { sd = 5, tb = items, o = create_coin(128, 56) },
     -- { sd = 5, tb = items, o = create_coin(128, 64) },
     -- { sd = 5.3, tb = items, o = create_coin(128, 56) },
@@ -261,10 +294,10 @@ function init_game()
     -- { sd = 5, tb = enemies, o = create_bomb(128, 64, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
     -- { sd = 128, tb = enemies, o = create_bomb(128, 64, { type = 'idle' }) },
     -- { sd = 10, tb = enemies, o = create_fox(128, 64, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
-    { sd = 0, tb = enemies, o = create_meteor(128, 64) },
+    -- { sd = 0, tb = enemies, o = create_meteor(128, 64) },
     -- { sd = 15, tb = enemies, o = create_alien(128, 64) },
-    { sd = 128, tb = items, o = create_coin(128 * 2, 64) },
-    { sd = 128 * 2, tb = items, o = create_carrot(128 * 3, 64) },
+    -- { sd = 128, tb = items, o = create_coin(128 * 2, 64) },
+    -- { sd = 128 * 2, tb = items, o = create_carrot(128 * 3, 64) },
     -- { sd = 30, tb = items, o = create_sm_cloud(128, 32) },
     -- { sd = 35, tb = items, o = create_md_cloud(128, 32) },
   }
@@ -1025,6 +1058,12 @@ function create_new_instances()
       add(backgrounds, b)
     end
     next_bg_pattern = wrap_table(next_bg_pattern, rawlen(bg_patterns))
+
+    local objs = future_objects[next_obj_pattern]
+    for o in all(objs) do
+      add(o.tb, o.o)
+    end
+    next_obj_pattern += 1
   end
 
   -- CRIAR SO UMA TRANSICAO COM WIDTH 3 VEZES MAIOR QUE A ATUAL
@@ -1088,18 +1127,6 @@ function create_new_instances()
 
   if time_since_boss_death > 0 then
     -- printh(time_since_boss_death)
-  end
-
-  for o in all(future_objects) do
-    if o.sd and o.sd <= scroll_distance then
-      add(o.tb, o.o)
-      del(future_objects, o)
-    elseif o.t then
-      -- and o.t <= time_since_boss_death 
-      -- printh('cooldown')
-      add(o.tb, o.o)
-      del(future_objects, o)
-    end
   end
 end
 
