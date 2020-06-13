@@ -48,8 +48,8 @@ function init_global_variables()
   LAST_PX_THIS_SCREEN = 127
   FIRST_PX_NEXT_SCREEN = 128
   HUD_HEIGHT = 16
-  TRANSITION_STARTS_PX = 128 * 6
-  TRANSITION_FINISH_PX = 128 * 9
+  TRANSITION_STARTS_PX = 128 * 8
+  TRANSITION_FINISH_PX = 128 * 14
 end
 
 -- MENU
@@ -271,21 +271,79 @@ function init_game()
     },
     {
       { tb = enemies, o = create_bomb(128, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 72, 56, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 72, 56, { type = 'idle' }) }
     },
     {
+      { tb = enemies, o = create_bomb(128 + 0, 72+8, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 0, 90+8, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 32, 72+8, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 32, 90+8, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 56, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 56, 58, { type = 'idle' }) },
+      { tb = items, o = create_coin(128-8 + 72, 72+8) },
+      { tb = items, o = create_coin(128-8 + 72, 90+8) },
+      { tb = enemies, o = create_bomb(128 + 88, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 88, 58, { type = 'idle' }) },
+      { tb = items, o = create_coin(128 + 120, 40) },
+      { tb = items, o = create_coin(128 + 120, 58) }
+    },
+    {
+      { tb = enemies, o = create_bomb(132 + 16, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(132 + 16, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(132 + 16, 104,{ type = 'idle' })  },
+      { tb = enemies, o = create_bomb(132 + 48, 72, { type = 'up_down', start_y = 64, range = 28, going_up = true }) },
+      { tb = enemies, o = create_fox(132 + 70, 72, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
+      { tb = items, o = create_coin(132 + 86, 72) },
+      { tb = items, o = create_carrot(132 + 102, 72) }
+    },
+    {
+      { tb = enemies, o = create_bomb(128 + 64, 24, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 64, 120, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'up_down', start_y = 72, range = 12, going_up = true }) },
+      { tb = enemies, o = create_bomb(128 + 40, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
+      { tb = enemies, o = create_bomb(128 + 40, 56, { type = 'up_down', start_y = 56, range = 10, going_up = true }) },      
+      { tb = enemies, o = create_fox(128 + 80, 88, { type = 'up_down', start_y = 88, range = 16, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 80, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },
+    },
+    {
+      { tb = enemies, o = create_bomb(128 + 8, 56, { type = 'idle' }) },
       { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'idle' }) },
       { tb = enemies, o = create_bomb(128 + 8, 88, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 40, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 40, 88, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 24, 56, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 24, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 24, 88, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(128 + 40, 40, { type = 'idle' }) },
       { tb = enemies, o = create_bomb(128 + 56, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 56, 56, { type = 'idle' }) },
-      { tb = items, o = create_coin(128 + 72, 72) },
-      { tb = items, o = create_coin(128 + 72, 88) },
-      { tb = enemies, o = create_bomb(128 + 88, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 88, 56, { type = 'idle' }) },
-      { tb = items, o = create_coin(128 + 120, 40) },
-      { tb = items, o = create_coin(128 + 120, 56) },
+      { tb = enemies, o = create_bomb(128 + 72, 40, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(128 + 40, 104, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 56, 104, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(128 + 72, 104, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(128 + 90, 72, { type = 'up_down', start_y = 72, range = 16, going_up = true }) },
+      { tb = enemies, o = create_bomb(128 + 106, 72, { type = 'up_down', start_y = 72, range = 18, going_up = false }) },      
+      { tb = items, o = create_coin(128 + 36, 52) }
+    },
+    {
+      { tb = enemies, o = create_bomb(128 + 24, 56, { type = 'up_down', start_y = 72, range = 10, going_up = true }) },
+      { tb = enemies, o = create_bomb(128 + 56, 88, { type = 'up_down', start_y = 88, range = 12, going_up = true }) },
+      { tb = enemies, o = create_bomb(128 + 88, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
+      { tb = enemies, o = create_fox(128 + 24, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 56, 56, { type = 'up_down', start_y = 56, range = 12, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 88, 88, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
+      { tb = items, o = create_carrot(132 + 102, 72) },
+    },
+    {
+      { tb = enemies, o = create_meteor_sm(128 + 32, 112) },
+      { tb = enemies, o = create_meteor_sm(128 + 64, 80) },
+      { tb = enemies, o = create_meteor_sm(128 + 112, 32) },     
+      { tb = enemies, o = create_meteor(128 + 32, 32) },      
+      { tb = items, o = create_coin(128 + 112, 72) },
+      { tb = items, o = create_coin(128 + 64, 112) },
+    },
+    {
+      { tb = enemies, o = create_meteor_sm(128, 64) },
+      { tb = enemies, o = create_meteor(128, 64) },
+      { tb = enemies, o = create_alien(128, 64) },{ tb = enemies, o = create_alien(128, 64) },
+      { tb = enemies, o = create_alien(128, 64) },{ tb = enemies, o = create_alien(128, 64) },
     },
     -- { sd = 5, tb = items, o = create_coin(128, 56) },
     -- { sd = 5, tb = items, o = create_coin(128, 64) },
@@ -953,7 +1011,7 @@ function create_md_cloud(x, y)
   }
 end
 
-function create_bg_transition_light(x, y)
+function create_bg_transition_light(x, y, flip)
   return {
     x = x,
     y = y,
@@ -961,12 +1019,13 @@ function create_bg_transition_light(x, y)
     h = 8,
     v = 1,
     sp = 100,
+    flip = flip,
     type = type.background,
     update = function(self)
       self.x -= self.v
     end,
     draw = function(self)
-      spr(self.sp, self.x, self.y, self.w/8, self.h/8)
+      spr(self.sp, self.x, self.y, self.w/8, self.h/8, self.flip)
     end,
   }
 end
@@ -980,21 +1039,17 @@ function create_bg_transition_medium(x, y, flip)
     v = 1,
     sp = 102,
     type = type.background,
+    flip = flip,
     update = function(self)
       self.x -= self.v
     end,
     draw = function(self)
-      if flip then
-        -- sspr(self.sp, self.x, self.y, self.w/8, self.h/8, self.x, self.y, self.w, self.h, true)
-        spr(self.sp, self.x, self.y, self.w/8, self.h/8)
-      else
-        spr(self.sp, self.x, self.y, self.w/8, self.h/8)
-      end
+      spr(self.sp, self.x, self.y, self.w/8, self.h/8, self.flip)
     end,
   }
 end
 
-function create_bg_transition_dark(x, y)
+function create_bg_transition_dark(x, y, flip)
   return {
     x = x,
     y = y,
@@ -1002,12 +1057,13 @@ function create_bg_transition_dark(x, y)
     h = 8,
     v = 1,
     sp = 104,
+    flip = flip,
     type = type.background,
     update = function(self)
       self.x -= self.v
     end,
     draw = function(self)
-      spr(self.sp, self.x, self.y, self.w/8, self.h/8)
+      spr(self.sp, self.x, self.y, self.w/8, self.h/8, self.flip)  
     end,
   }
 end
@@ -1052,7 +1108,7 @@ end
 -- OTHER
 
 function create_new_instances()
-  if scroll_distance % 128 == 0 and scroll_distance < TRANSITION_STARTS_PX then
+  if scroll_distance % 128 == 0 then
     local bgs = bg_patterns[next_bg_pattern]
     for b in all(bgs) do
       add(backgrounds, b)
@@ -1064,7 +1120,7 @@ function create_new_instances()
       add(o.tb, o.o)
     end
     next_obj_pattern += 1
-  end
+  end  
 
   -- CRIAR SO UMA TRANSICAO COM WIDTH 3 VEZES MAIOR QUE A ATUAL
   -- ASSIM ESSE CODIGO FICARIA COM 2 FORS
@@ -1104,7 +1160,7 @@ function create_new_instances()
 
   if scroll_distance == (TRANSITION_FINISH_PX - 128) + 16 then
     for i = 0, 13 do
-      add(backgrounds, create_bg_transition_medium(129, 16 + (i * 8)))
+      add(backgrounds, create_bg_transition_medium(129, 16 + (i * 8), true))
     end
   end
 
@@ -1112,7 +1168,7 @@ function create_new_instances()
     for i = 0, 16 do
       for j = 0, 13 do
         if i == 0 then
-          add(backgrounds, create_bg_transition_light(129, 16 + (j * 8)))
+          add(backgrounds, create_bg_transition_light(129, 16 + (j * 8), true))
         else
           add(backgrounds, create_bg_light(129 + (i * 8), 16 + (j * 8)))
         end
@@ -1121,7 +1177,7 @@ function create_new_instances()
   end
 
   -- END
-  if scroll_distance == (128 * 11) then
+  if scroll_distance == TRANSITION_FINISH_PX + 128 then
     boss = create_boss(128-16, 64)
   end
 
@@ -1218,9 +1274,9 @@ function update_scroll_distance()
 end
 
 function clear_screen()
-  if scroll_distance < 128 * 6 + 16 or scroll_distance > 128 * 10 then
+  if scroll_distance < TRANSITION_STARTS_PX + 16 or scroll_distance > TRANSITION_FINISH_PX then
     cls(7)
-  elseif scroll_distance > 128 * 6 + 16 then
+  elseif scroll_distance > TRANSITION_STARTS_PX + 16 then
     cls(0)
   end
 end
