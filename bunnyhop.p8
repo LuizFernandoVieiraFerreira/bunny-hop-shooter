@@ -837,14 +837,14 @@ function create_boss(x, y)
         if self.life == 29 then
           self.active = true
         elseif self.life == 0 then
-          add(future_objects, { t = 1, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 1, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 2, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 2, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 3, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 3, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 4, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
-          add(future_objects, { t = 4, tb = foregrounds, o = create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)) })
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
+          add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))  
           self.life = -1
         end
       end   
@@ -978,7 +978,9 @@ function create_explosion(x, y)
         end
       end
 
-      self.x -= self.v
+      if not boss then
+        self.x -= self.v
+      end
     end,
     draw = function(self)
       draw_sprite(self)      
@@ -1131,12 +1133,15 @@ end
 -- OTHER
 
 function create_new_instances()
-  if scroll_distance % 128 == 0 then
-    local bgs = bg_patterns[next_bg_pattern]
-    for b in all(bgs) do
-      add(backgrounds, b)
+  if scroll_distance % 128 == 0 then    
+
+    if scroll_distance < TRANSITION_STARTS_PX then
+      local bgs = bg_patterns[next_bg_pattern]
+      for b in all(bgs) do
+        add(backgrounds, b)
+      end
+      next_bg_pattern = wrap_table(next_bg_pattern, rawlen(bg_patterns))
     end
-    next_bg_pattern = wrap_table(next_bg_pattern, rawlen(bg_patterns))
 
     local objs = future_objects[next_obj_pattern]
     for o in all(objs) do
@@ -1203,10 +1208,6 @@ function create_new_instances()
   if scroll_distance == TRANSITION_FINISH_PX + 128 then
     boss = create_boss(128-16, 64)
   end
-
-  if time_since_boss_death > 0 then
-    -- printh(time_since_boss_death)
-  end
 end
 
 function check_collision()
@@ -1256,6 +1257,14 @@ function check_is_dead()
   for f in all(foregrounds) do
     if f:is_dead() then
       del(foregrounds, f)
+    end
+  end
+  if boss then    
+    if boss:is_dead() then
+      boss = nil
+      init_ending()
+      _update = update_ending
+      _draw = draw_ending
     end
   end
 end
@@ -1336,8 +1345,8 @@ function track_time()
   local cur_time = time()
   timer += cur_time - last_time
 
-  if boss and boss.life == 0 then
-    time_since_boss_death += cur_time - last_time
+  if boss and boss.life <= 0 then
+    time_since_boss_death += cur_time - last_time    
   end
 
   last_time = cur_time
