@@ -40,6 +40,7 @@ function init_global_variables()
     player = 'player',
     bullet = 'bullet',
     enemy = 'enemy',
+    enemy_bullet = 'enemy_bullet',
     coin = 'coin',
     carrot = 'carrot',
     background = 'background',
@@ -296,7 +297,7 @@ function init_game()
       { tb = enemies, o = create_bomb(132 + 16, 72, { type = 'idle' }) },
       { tb = enemies, o = create_bomb(132 + 16, 104,{ type = 'idle' })  },
       { tb = enemies, o = create_bomb(132 + 48, 72, { type = 'up_down', start_y = 64, range = 28, going_up = true }) },
-      { tb = enemies, o = create_fox(132 + 70, 72, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
+      { tb = enemies, o = create_fox(132 + 70, 72, { type = 'up_down_shoot', start_y = 64, range = 32, going_up = true }) },
       { tb = items, o = create_coin(132 + 86, 72) },
       { tb = items, o = create_carrot(132 + 102, 72) }
     },
@@ -306,8 +307,8 @@ function init_game()
       { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'up_down', start_y = 72, range = 12, going_up = true }) },
       { tb = enemies, o = create_bomb(128 + 40, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
       { tb = enemies, o = create_bomb(128 + 40, 56, { type = 'up_down', start_y = 56, range = 10, going_up = true }) },      
-      { tb = enemies, o = create_fox(128 + 80, 88, { type = 'up_down', start_y = 88, range = 16, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 80, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 80, 88, { type = 'up_down_shoot', start_y = 88, range = 16, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 80, 56, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },
     },
     {
       { tb = enemies, o = create_bomb(128 + 8, 56, { type = 'idle' }) },
@@ -330,9 +331,9 @@ function init_game()
       { tb = enemies, o = create_bomb(128 + 24, 56, { type = 'up_down', start_y = 72, range = 10, going_up = true }) },
       { tb = enemies, o = create_bomb(128 + 56, 88, { type = 'up_down', start_y = 88, range = 12, going_up = true }) },
       { tb = enemies, o = create_bomb(128 + 88, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
-      { tb = enemies, o = create_fox(128 + 24, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 56, 56, { type = 'up_down', start_y = 56, range = 12, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 88, 88, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
+      { tb = enemies, o = create_fox(128 + 24, 88, { type = 'up_down_shoot', start_y = 88, range = 10, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 56, 56, { type = 'up_down_shoot', start_y = 56, range = 12, going_up = true }) },
+      { tb = enemies, o = create_fox(128 + 88, 88, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },      
       { tb = items, o = create_carrot(132 + 102, 72) },
     },
     {},
@@ -660,6 +661,8 @@ function create_fox(x, y, behaviour)
     v = 1,
     sp = 37,
     anim = 0,
+    shoot_timer = 0,
+    shoot_cooldown = 1,
     life = 1,
     type = type.enemy,
     behaviour = behaviour and behaviour or {},
@@ -672,7 +675,7 @@ function create_fox(x, y, behaviour)
         end
       end
 
-      if self.behaviour.type == 'up_down' then
+      if self.behaviour.type == 'up_down' or self.behaviour.type == 'up_down_shoot' then
         if self.behaviour.going_up then
           self.y -= self.v
           else
@@ -683,6 +686,14 @@ function create_fox(x, y, behaviour)
           self.behaviour.going_up = true
         elseif self.y < self.behaviour.start_y - self.behaviour.range then
           self.behaviour.going_up = false
+        end
+      end
+
+      if self.behaviour.type == 'up_down_shoot' then
+        self.shoot_timer += (time() - last_time)        
+        if self.shoot_timer > self.shoot_cooldown then             
+          add(bullets, create_enemy_bullet(self.x, self.y, self.w, self.h, 'fox'))               
+          self.shoot_timer = 0
         end
       end
 
@@ -873,7 +884,7 @@ end
 function create_bullet(x, y, w, h)
   return {
     x = x + w/2,
-    y = y,
+    y = y + h/4,
     w = 8,
     h = 8,
     v = 3,
@@ -888,6 +899,41 @@ function create_bullet(x, y, w, h)
     end,
     notify_collision = function(self, o)
       if o.type == 'enemy' or o.type == 'boss' then
+        self.life -= 1
+      end
+    end,
+    is_dead = function(self)
+      return (self.life <= 0) and true or false
+    end,
+  }
+end
+
+function create_enemy_bullet(x, y, w, h, shooter_type)
+  local sp = 32
+  if shooter_type == 'fox' then
+    sp = 32
+  elseif shooter_type == 'alien' then
+    sp = 84
+  elseif shooter_type == 'boss' then
+    sp = 48
+  end
+  return {
+    x = x - w/2,
+    y = y + h/4,
+    w = 8,
+    h = 8,
+    v = 2,
+    sp = sp,
+    life = 1,
+    type = type.enemy_bullet,
+    update = function(self)
+      self.x -= self.v
+    end,
+    draw = function(self)
+      draw_sprite(self)
+    end,
+    notify_collision = function(self, o)
+      if o.type == 'player' then
         self.life -= 1
       end
     end,
