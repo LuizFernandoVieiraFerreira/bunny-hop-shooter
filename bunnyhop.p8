@@ -164,9 +164,10 @@ function init_intro()
   cutscene:add_actor('boss', create_boss(128 + 16, 64))
   cutscene:add_actor('cage', create_cage(49, 64))
   add(cutscene.backgrounds, create_sm_cloud(40, 38))
-  add(cutscene.backgrounds, create_md_cloud(32, 80))
+  add(cutscene.backgrounds, create_md_cloud(32, 72))
   add(cutscene.backgrounds, create_sm_cloud(96, 88))
   add(cutscene.backgrounds, create_md_cloud(80, 40))
+  add(cutscene.backgrounds, create_md_cloud(64, 102))  
 end
 
 function update_intro()
@@ -219,9 +220,10 @@ function init_game()
   transitions = {}
   backgrounds = {
     create_sm_cloud(40, 38),
-    create_md_cloud(32, 80),
+    create_md_cloud(32, 72),
     create_sm_cloud(96, 88),
     create_md_cloud(80, 40),
+    create_md_cloud(64, 102),
   }
   foregrounds = {}
   bullets = {}
@@ -251,7 +253,7 @@ function init_game()
       create_md_cloud(128 + 32, 80),
       create_sm_cloud(128 + 96, 88),
       create_md_cloud(128 + 80, 40),
-      create_md_cloud(128 + 96, 96),
+      create_md_cloud(128 + 96, 112),
     },
   }
 
