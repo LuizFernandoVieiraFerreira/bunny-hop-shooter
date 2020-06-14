@@ -215,6 +215,7 @@ end
 
 function init_game()  
   player = create_player(32, 64)
+  transitions = {}
   backgrounds = {
     create_sm_cloud(40, 38),
     create_md_cloud(32, 80),
@@ -394,6 +395,7 @@ function update_game()
 
   player:update()
 
+  foreach(transitions, function(obj) obj:update() end)
   foreach(backgrounds, function(obj) obj:update() end)
   foreach(bullets, function(obj) obj:update() end)
   foreach(enemies, function(obj) obj:update() end)
@@ -412,7 +414,8 @@ function update_game()
 end
 
 function draw_game()
-  clear_screen()  
+  clear_screen()
+  foreach(transitions, function(obj) obj:draw() end)
   foreach(backgrounds, function(obj) obj:draw() end)
   player:draw()
   foreach(bullets, function(obj) obj:draw() end)
@@ -1133,37 +1136,16 @@ end
 -- OTHER
 
 function create_new_instances()
-  if scroll_distance % 128 == 0 then    
-
-    if scroll_distance < TRANSITION_STARTS_PX then
-      local bgs = bg_patterns[next_bg_pattern]
-      for b in all(bgs) do
-        add(backgrounds, b)
-      end
-      next_bg_pattern = wrap_table(next_bg_pattern, rawlen(bg_patterns))
-    end
-
-    local objs = future_objects[next_obj_pattern]
-    for o in all(objs) do
-      add(o.tb, o.o)
-    end
-    next_obj_pattern += 1
-  end  
-
-  -- CRIAR SO UMA TRANSICAO COM WIDTH 3 VEZES MAIOR QUE A ATUAL
-  -- ASSIM ESSE CODIGO FICARIA COM 2 FORS
-  -- UM PRA TRANSICAO E OUTRO PRA UMA TELA CHEIA
-
   -- START
   if scroll_distance == (TRANSITION_STARTS_PX - 128) then
     for i = 0, 13 do
-      add(backgrounds, create_bg_transition_light(129, 16 + (i * 8)))
+      add(transitions, create_bg_transition_light(129, 16 + (i * 8)))
     end
   end
 
   if scroll_distance == (TRANSITION_STARTS_PX - 128) + 16 then
     for i = 0, 13 do
-      add(backgrounds, create_bg_transition_medium(129, 16 + (i * 8)))
+      add(transitions, create_bg_transition_medium(129, 16 + (i * 8)))
     end
   end
 
@@ -1171,9 +1153,9 @@ function create_new_instances()
     for i = 0, 16 do
       for j = 0, 13 do
         if i == 0 then
-          add(backgrounds, create_bg_transition_dark(129, 16 + (j * 8)))
+          add(transitions, create_bg_transition_dark(129, 16 + (j * 8)))
         else
-          add(backgrounds, create_bg_dark(129 + (i * 8), 16 + (j * 8)))
+          add(transitions, create_bg_dark(129 + (i * 8), 16 + (j * 8)))
         end
       end
     end
@@ -1182,13 +1164,13 @@ function create_new_instances()
   -- FINISH
   if scroll_distance == TRANSITION_FINISH_PX - 128 then
     for i = 0, 13 do
-      add(backgrounds, create_bg_transition_dark(129, 16 + (i * 8), true))
+      add(transitions, create_bg_transition_dark(129, 16 + (i * 8), true))
     end
   end
 
   if scroll_distance == (TRANSITION_FINISH_PX - 128) + 16 then
     for i = 0, 13 do
-      add(backgrounds, create_bg_transition_medium(129, 16 + (i * 8), true))
+      add(transitions, create_bg_transition_medium(129, 16 + (i * 8), true))
     end
   end
 
@@ -1196,13 +1178,29 @@ function create_new_instances()
     for i = 0, 16 do
       for j = 0, 13 do
         if i == 0 then
-          add(backgrounds, create_bg_transition_light(129, 16 + (j * 8), true))
+          add(transitions, create_bg_transition_light(129, 16 + (j * 8), true))
         else
-          add(backgrounds, create_bg_light(129 + (i * 8), 16 + (j * 8)))
+          add(transitions, create_bg_light(129 + (i * 8), 16 + (j * 8)))
         end
       end
     end
   end
+
+  if scroll_distance % 128 == 0 then    
+    if scroll_distance < (TRANSITION_STARTS_PX - 128) or scroll_distance > (TRANSITION_FINISH_PX - 128) then
+      local bgs = bg_patterns[next_bg_pattern]
+      for b in all(bgs) do        
+        add(backgrounds, copy_table(b))
+      end
+      next_bg_pattern = wrap_table(next_bg_pattern, rawlen(bg_patterns))      
+    end
+
+    local objs = future_objects[next_obj_pattern]
+    for o in all(objs) do
+      add(o.tb, o.o)
+    end
+    next_obj_pattern += 1
+  end  
 
   -- END
   if scroll_distance == TRANSITION_FINISH_PX + 128 then
@@ -1270,6 +1268,12 @@ function check_is_dead()
 end
 
 function delete_outside_boundries()
+  for t in all(transitions) do
+    if t.x < (t.w * -1) then
+      del(transitions, t)
+    end
+  end
+
   for b in all(backgrounds) do
     if b.x < (b.w * -1) then
       del(backgrounds, b)
@@ -1393,6 +1397,14 @@ function sort(a)
       j = j - 1
     end
   end
+end
+
+function copy_table(t)
+  local new_t = {}
+  for key, value in pairs(t) do
+    new_t[key] = value
+  end
+  return new_t
 end
 
 __gfx__
