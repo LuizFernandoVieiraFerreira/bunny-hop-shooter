@@ -391,7 +391,7 @@ function init_game()
 end
 
 function update_game()  
-  track_time()
+  track_current_time()
   create_new_instances()
 
   player:update()
@@ -411,7 +411,8 @@ function update_game()
   check_collision()
   check_is_dead()
   delete_outside_boundries()
-  update_scroll_distance()  
+  update_scroll_distance()
+  track_last_time()
 end
 
 function draw_game()
@@ -443,7 +444,8 @@ function init_ending()
 end
 
 function update_ending()
-  track_time()
+  track_current_time()
+  track_last_time()
 end
 
 function draw_ending()
@@ -477,11 +479,11 @@ function create_player(x, y)
     anim = 0,
     life = 3,
     state = 'flying',
-    can_shoot = true,
     shoot_timer = 0,
+    shoot_cooldown = 0.2,
     type = type.player,
     update = function(self)      
-      local move_left = btn(key.left) and -1 or 0
+      local move_left = btn(key.left) and -2 or 0
       local move_right = btn(key.right) and 1 or 0
       local move_up = btn(key.up) and -1 or 0
       local move_down = btn(key.down) and 1 or 0
@@ -513,11 +515,14 @@ function create_player(x, y)
       self.x = new_pos_x
       self.y = new_pos_y
       
-      local shoot = btnp(key.a) or btnp(key.b)
-
-      if shoot then
-        add(bullets, create_bullet(self.x, self.y, self.w, self.h))
-        sfx(sound.shot)
+      self.shoot_timer += (time() - last_time)
+      local shot = btnp(key.a) or btnp(key.b)
+      if self.shoot_timer > self.shoot_cooldown then        
+        if shot then
+          add(bullets, create_bullet(self.x, self.y, self.w, self.h))
+          sfx(sound.shot)          
+          self.shoot_timer = 0
+        end
       end
       
       if self.state == 'flying' then
@@ -1346,15 +1351,17 @@ function is_colliding(a, b)
   return a.x < (b.x + b.w) and (a.x + a.w) > b.x and a.y < (b.y + b.h) and (a.y + a.h) > b.y
 end
 
-function track_time()
+function track_current_time()
   local cur_time = time()
   timer += cur_time - last_time
 
   if boss and boss.life <= 0 then
     time_since_boss_death += cur_time - last_time    
-  end
+  end  
+end
 
-  last_time = cur_time
+function track_last_time()
+  last_time = time()
 end
 
 -- UTILS
