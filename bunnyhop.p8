@@ -12,9 +12,19 @@ function _init()
   _draw = draw_menu
 end
 
-function change_color_pallete()
-  -- _pal = { 3, 3, 3, 3, 139, 139, 138, 135, 138, 138, 135, 139, 139, 139, 138, 135 }
+function change_color_pallete()  
   _pal = { 131, 131, 131, 131, 3, 3, 139, 138, 139, 139, 138, 3, 3, 3, 139, 138 }
+  if current_color_pallete == 1 then
+    _pal = { 3, 3, 3, 3, 139, 139, 138, 135, 138, 138, 135, 139, 139, 139, 138, 135 }
+  elseif current_color_pallete == 2 then
+    _pal = { 0, 0, 0, 0, 5, 5, 6, 7, 6, 6, 7, 5, 5, 5, 6, 7 }
+  elseif current_color_pallete == 3 then
+    _pal = { 132, 132, 132, 132, 4, 4, 143, 15, 143, 143, 15, 4, 4, 4, 143, 15 }
+  elseif current_color_pallete == 4 then 
+    _pal = { 129, 129, 129, 129, 1, 1, 140, 12, 140, 140, 12, 1, 1, 1, 140, 12 }
+  elseif current_color_pallete == 5 then 
+    _pal = { 130, 130, 130, 130, 2, 2, 136, 14, 136, 136, 14, 2, 2, 2, 136, 14 }
+  end
   for i, c in pairs(_pal) do
     pal(i-1, c, 1)
   end
@@ -23,13 +33,14 @@ function change_color_pallete()
 end
 
 function init_global_variables()
+  current_color_pallete = 0
   key = {
     left = 0,
     right = 1,
     up = 2,
     down = 3,
-    a = 4,
-    b = 5,
+    a = 5,
+    b = 4,
   }
   sound = {
     coin = 0,
@@ -74,7 +85,7 @@ function init_menu()
 end
 
 function update_menu()
-  if btnp(key.a) or btnp(key.b) then
+  if btnp(key.a) then -- or btnp(key.b)
     init_intro()
     _update = update_intro
     _draw = draw_intro
@@ -85,6 +96,10 @@ function update_menu()
     -- _update = update_ending
     -- _draw = draw_ending
   end
+  if btnp(key.b) then
+    change_color_pallete()
+    current_color_pallete = wrap(current_color_pallete, 5)
+  end  
 end
 
 function draw_menu()
@@ -236,156 +251,143 @@ function init_game()
   next_bg_pattern = 1
   bg_patterns = {
     {
-      create_sm_cloud(128 + 30, 28),
-      create_md_cloud(128 + 22, 50),
-      create_sm_cloud(128 + 26, 88),
-      create_sm_cloud(128 + 64, 108),
-      create_md_cloud(128 + 96, 76),
-      create_md_cloud(128 + 80, 36),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 30, 28),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 22, 50),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 26, 88),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 64, 108),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 96, 76),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 80, 36),
     },
     {
-      create_md_cloud(128 + 40, 38),
-      create_sm_cloud(128 + 32, 80),
-      create_md_cloud(128 + 96, 88),
-      create_sm_cloud(128 + 80, 40),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 40, 38),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 32, 80),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 96, 88),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 80, 40),
     },
     {
-      create_sm_cloud(128 + 40, 38),
-      create_md_cloud(128 + 32, 80),
-      create_sm_cloud(128 + 96, 88),
-      create_md_cloud(128 + 80, 40),
-      create_md_cloud(128 + 96, 112),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 40, 38),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 32, 80),
+      create_sm_cloud(FIRST_PX_NEXT_SCREEN + 96, 88),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 80, 40),
+      create_md_cloud(FIRST_PX_NEXT_SCREEN + 96, 112),
     },
   }
 
   next_obj_pattern = 1
   future_objects = {
     {
-      { tb = items, o = create_coin(128 + 16, 56) },
-      { tb = items, o = create_coin(128 + 16, 72) },
-      { tb = items, o = create_coin(128 + 32, 56) },
-      { tb = items, o = create_coin(128 + 32, 72) },
-      { tb = items, o = create_coin(128 + 48, 56) },
-      { tb = items, o = create_coin(128 + 48, 72) },
-      { tb = items, o = create_coin(128 + 64, 56) },
-      { tb = items, o = create_coin(128 + 64, 72) },
-      { tb = items, o = create_coin(128 + 80, 56) },
-      { tb = items, o = create_coin(128 + 80, 72) },
-      { tb = items, o = create_coin(128 + 96, 56) },
-      { tb = items, o = create_coin(128 + 96, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 16, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 16, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 32, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 32, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 48, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 48, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 64, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 64, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 80, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 80, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 96, 56) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 96, 72) },
     },
     {
-      { tb = enemies, o = create_bomb(128, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 72, 56, { type = 'idle' }) }
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 72, 56, { type = 'idle' }) }
     },
     {
-      { tb = enemies, o = create_bomb(128 + 0, 72+8, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 0, 90+8, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 32, 72+8, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 32, 90+8, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 56, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 56, 58, { type = 'idle' }) },
-      { tb = items, o = create_coin(128-8 + 72, 72+8) },
-      { tb = items, o = create_coin(128-8 + 72, 90+8) },
-      { tb = enemies, o = create_bomb(128 + 88, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 88, 58, { type = 'idle' }) },
-      { tb = items, o = create_coin(128 + 120, 40) },
-      { tb = items, o = create_coin(128 + 120, 58) }
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 0, 80, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 0, 98, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 32, 80, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 32, 98, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 56, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 56, 58, { type = 'idle' }) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 64, 80) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 64, 98) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 88, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 88, 58, { type = 'idle' }) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 120, 40) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 120, 58) }
     },
     {
-      { tb = enemies, o = create_bomb(132 + 16, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(132 + 16, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(132 + 16, 104,{ type = 'idle' })  },
-      { tb = enemies, o = create_bomb(132 + 48, 72, { type = 'up_down', start_y = 64, range = 28, going_up = true }) },
-      { tb = enemies, o = create_fox(132 + 70, 72, { type = 'up_down_shoot', start_y = 64, range = 32, going_up = true }) },
-      { tb = items, o = create_coin(132 + 86, 72) },
-      { tb = items, o = create_carrot(132 + 102, 72) }
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 20, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 20, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 20, 104, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 52, 72, { type = 'up_down', start_y = 64, range = 28, going_up = true }) },
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 74, 72, { type = 'up_down_shoot', start_y = 64, range = 32, going_up = true }) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 90, 72) },
+      { tb = items, o = create_carrot(FIRST_PX_NEXT_SCREEN + 106, 72) }
     },
     {
-      { tb = enemies, o = create_bomb(128 + 64, 24, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 64, 120, { type = 'idle' }) },      
-      { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'up_down', start_y = 72, range = 12, going_up = true }) },
-      { tb = enemies, o = create_bomb(128 + 40, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
-      { tb = enemies, o = create_bomb(128 + 40, 56, { type = 'up_down', start_y = 56, range = 10, going_up = true }) },      
-      { tb = enemies, o = create_fox(128 + 80, 88, { type = 'up_down_shoot', start_y = 88, range = 16, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 80, 56, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 64, 24, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 64, 120, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 8, 72, { type = 'up_down', start_y = 72, range = 12, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 40, 88, { type = 'up_down', start_y = 88, range = 10, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 40, 56, { type = 'up_down', start_y = 56, range = 10, going_up = true }) },      
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 80, 88, { type = 'up_down_shoot', start_y = 88, range = 16, going_up = true }) },
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 80, 56, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },
     },
     {
-      { tb = enemies, o = create_bomb(128 + 8, 56, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 8, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 8, 88, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 24, 56, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 24, 72, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 24, 88, { type = 'idle' }) },      
-      { tb = enemies, o = create_bomb(128 + 40, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 56, 40, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 72, 40, { type = 'idle' }) },      
-      { tb = enemies, o = create_bomb(128 + 40, 104, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 56, 104, { type = 'idle' }) },
-      { tb = enemies, o = create_bomb(128 + 72, 104, { type = 'idle' }) },      
-      { tb = enemies, o = create_bomb(128 + 90, 72, { type = 'up_down', start_y = 72, range = 16, going_up = true }) },
-      { tb = enemies, o = create_bomb(128 + 106, 72, { type = 'up_down', start_y = 72, range = 18, going_up = false }) },      
-      { tb = items, o = create_coin(128 + 36, 52) }
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 8, 56, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 8, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 8, 88, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 24, 56, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 24, 72, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 24, 88, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 40, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 56, 40, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 72, 40, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 40, 104, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 56, 104, { type = 'idle' }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 72, 104, { type = 'idle' }) },      
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 90, 72, { type = 'up_down', start_y = 72, range = 16, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 106, 72, { type = 'up_down', start_y = 72, range = 18, going_up = false }) },      
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 36, 52) }
     },
     {
-      { tb = enemies, o = create_bomb(128 + 24, 56, { type = 'up_down', start_y = 72, range = 10, going_up = true }) },
-      { tb = enemies, o = create_bomb(128 + 56, 88, { type = 'up_down', start_y = 88, range = 12, going_up = true }) },
-      { tb = enemies, o = create_bomb(128 + 88, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
-      { tb = enemies, o = create_fox(128 + 24, 88, { type = 'up_down_shoot', start_y = 88, range = 10, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 56, 56, { type = 'up_down_shoot', start_y = 56, range = 12, going_up = true }) },
-      { tb = enemies, o = create_fox(128 + 88, 88, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },      
-      { tb = items, o = create_carrot(132 + 102, 72) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 24, 56, { type = 'up_down', start_y = 72, range = 10, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 56, 88, { type = 'up_down', start_y = 88, range = 12, going_up = true }) },
+      { tb = enemies, o = create_bomb(FIRST_PX_NEXT_SCREEN + 88, 56, { type = 'up_down', start_y = 56, range = 16, going_up = true }) },      
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 24, 88, { type = 'up_down_shoot', start_y = 88, range = 10, going_up = true }) },
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 56, 56, { type = 'up_down_shoot', start_y = 56, range = 12, going_up = true }) },
+      { tb = enemies, o = create_fox(FIRST_PX_NEXT_SCREEN + 88, 88, { type = 'up_down_shoot', start_y = 56, range = 16, going_up = true }) },      
+      { tb = items, o = create_carrot(FIRST_PX_NEXT_SCREEN + 106, 72) },
     },
     {},
     {
-      { tb = enemies, o = create_meteor_sm(128 + 32, 112) },
-      { tb = enemies, o = create_meteor_sm(128 + 64, 80) },
-      { tb = enemies, o = create_meteor_sm(128 + 112, 32) },     
-      { tb = enemies, o = create_meteor(128 + 32, 32) },      
-      { tb = items, o = create_coin(128 + 112, 72) },
-      { tb = items, o = create_coin(128 + 64, 112) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 32, 112) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 64, 80) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 112, 32) },     
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 32, 32) },      
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 112, 72) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 64, 112) },
     },
     {
-      { tb = enemies, o = create_meteor_sm(128 + 80 + 8, 32) },
-      { tb = enemies, o = create_meteor_sm(128 + 32 + 8, 112) },
-      { tb = enemies, o = create_meteor(128 + 16, 80) },
-      { tb = enemies, o = create_alien(128 + 64, 96) },
-      { tb = enemies, o = create_alien(128 + 112, 32) },
-      { tb = items, o = create_coin(128 + 80, 48) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 88, 32) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 40, 112) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 80) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 64, 96, { type = 'shoot' }) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 112, 32, { type = 'shoot' }) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 80, 48) },
     },
     {      
-      { tb = enemies, o = create_meteor_sm(128 + 64, 96) },
-      { tb = enemies, o = create_meteor(128 + 16, 64) },
-      { tb = enemies, o = create_alien(128 + 64, 64) },
-      { tb = enemies, o = create_alien(128 + 64, 80) },
-      { tb = enemies, o = create_alien(128 + 112, 96) },
-      { tb = items, o = create_coin(128 + 32, 112) },
-      { tb = items, o = create_coin(128 + 16, 16) },
-      { tb = items, o = create_coin(128 + 96, 64) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 64, 96) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 64) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 64, 64, { type = 'shoot' }) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 64, 80, { type = 'shoot' }) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 112, 96, { type = 'shoot' }) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 32, 112) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 16, 16) },
+      { tb = items, o = create_coin(FIRST_PX_NEXT_SCREEN + 96, 64) },
     },
     {
-      { tb = enemies, o = create_meteor_sm(128 + 32 + 8, 112) },
-      { tb = enemies, o = create_meteor_sm(128 + 32 + 8, 112) },
-      { tb = enemies, o = create_alien(128 + 112, 32) },
-      { tb = enemies, o = create_meteor(128 + 16, 80) },
-      { tb = enemies, o = create_meteor(128 + 16, 80) },
-      { tb = enemies, o = create_meteor(128 + 16, 80) },
-      { tb = enemies, o = create_meteor(128 + 16, 80) },
-      { tb = items, o = create_carrot(132 + 102, 72) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 40, 112) },
+      { tb = enemies, o = create_meteor_sm(FIRST_PX_NEXT_SCREEN + 40, 112) },
+      { tb = enemies, o = create_alien(FIRST_PX_NEXT_SCREEN + 112, 32, { type = 'shoot' }) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 80) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 80) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 80) },
+      { tb = enemies, o = create_meteor(FIRST_PX_NEXT_SCREEN + 16, 80) },
+      { tb = items, o = create_carrot(FIRST_PX_NEXT_SCREEN + 106, 72) },
     },
-    -- { sd = 5, tb = items, o = create_coin(128, 56) },
-    -- { sd = 5, tb = items, o = create_coin(128, 64) },
-    -- { sd = 5.3, tb = items, o = create_coin(128, 56) },
-    -- { sd = 5.3, tb = items, o = create_coin(128, 64) },
-    -- { sd = 5, tb = enemies, o = create_bomb(128, 64, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
-    -- { sd = 128, tb = enemies, o = create_bomb(128, 64, { type = 'idle' }) },
-    -- { sd = 10, tb = enemies, o = create_fox(128, 64, { type = 'up_down', start_y = 64, range = 32, going_up = true }) },
-    -- { sd = 0, tb = enemies, o = create_meteor(128, 64) },
-    -- { sd = 15, tb = enemies, o = create_alien(128, 64) },
-    -- { sd = 128, tb = items, o = create_coin(128 * 2, 64) },
-    -- { sd = 128 * 2, tb = items, o = create_carrot(128 * 3, 64) },
-    -- { sd = 30, tb = items, o = create_sm_cloud(128, 32) },
-    -- { sd = 35, tb = items, o = create_md_cloud(128, 32) },
   }
   timer = 0
   last_time = time()
@@ -393,7 +395,12 @@ function init_game()
   time_since_boss_death = 0
 end
 
-function update_game()  
+function update_game()
+  if btnp(key.b) then
+    change_color_pallete()
+    current_color_pallete = wrap(current_color_pallete, 5)
+  end
+
   track_current_time()
   create_new_instances()
 
@@ -519,7 +526,7 @@ function create_player(x, y)
       self.y = new_pos_y
       
       self.shoot_timer += (time() - last_time)
-      local shot = btnp(key.a) or btnp(key.b)
+      local shot = btnp(key.a) -- or btnp(key.b)
       if self.shoot_timer > self.shoot_cooldown then        
         if shot then
           add(bullets, create_bullet(self.x, self.y, self.w, self.h))
@@ -713,39 +720,50 @@ function create_fox(x, y, behaviour)
   }
 end
 
-function create_alien(x, y)
+function create_alien(x, y, behaviour)
  return {
-   x = x,
-   y = y,
-   w = 16,
-   h = 16,
-   v = 1,
-   sp = 132,
-   anim = 0,
-   life = 1,
-   type = type.enemy,
-   update = function(self)
-     if time() - self.anim > .3 then
-       self.anim = time()
-       self.sp += 2
-       if self.sp > 134 then
-         self.sp = 132
-       end
-     end
+    x = x,
+    y = y,
+    w = 16,
+    h = 16,
+    v = 1,
+    sp = 132,
+    anim = 0,
+    shoot_timer = 0,
+    shoot_cooldown = 1.3,
+    life = 1,
+    type = type.enemy,
+    behaviour = behaviour and behaviour or {},
+    update = function(self)
+      if time() - self.anim > .3 then
+        self.anim = time()
+        self.sp += 2
+        if self.sp > 134 then
+          self.sp = 132
+        end
+      end
 
-     self.x -= self.v
-   end,
-   draw = function(self)
-     draw_sprite(self)
-   end,
-   notify_collision = function(self, o)
-     if o.type == 'bullet' then
-       self.life -= 1
-     end
-   end,
-   is_dead = function(self)
-     return (self.life <= 0) and true or false
-   end
+      if self.behaviour.type == 'shoot' then
+        self.shoot_timer += (time() - last_time)        
+        if self.shoot_timer > self.shoot_cooldown then             
+          add(bullets, create_enemy_bullet(self.x, self.y, self.w, self.h, 'alien'))               
+          self.shoot_timer = 0
+        end
+      end
+
+      self.x -= self.v
+    end,
+    draw = function(self)
+      draw_sprite(self)
+    end,
+    notify_collision = function(self, o)
+      if o.type == 'bullet' then
+        self.life -= 1
+      end
+    end,
+    is_dead = function(self)
+      return (self.life <= 0) and true or false
+    end
   }
 end
 
