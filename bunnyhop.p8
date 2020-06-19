@@ -46,6 +46,7 @@ function init_global_variables()
     coin = 0,
     shot = 1,
     explosion = 2,
+    carrot = 3,
   }
   type = {
     player = 'player',
@@ -95,6 +96,9 @@ function update_menu()
     -- init_ending()
     -- _update = update_ending
     -- _draw = draw_ending
+    -- init_game_over()
+    -- _update = update_game_over
+    -- _draw = draw_game_over
   end
   if btnp(key.b) then
     change_color_pallete()
@@ -476,6 +480,43 @@ function draw_ending()
   end
 end
 
+-- GAME OVER
+
+function init_game_over()
+  timer = 0
+  last_time = time()
+  gameover_text = "GAME OVER!"
+  gameover_text_underline = "---- -----"
+end
+
+function update_game_over()
+  track_current_time()
+  track_last_time()
+  if btnp(key.a) and timer > (#gameover_text_underline/4) then
+    init_game()
+    _update = update_game
+    _draw = draw_game
+  end
+end
+
+function draw_game_over()
+  cls(7)
+
+  if timer < (#gameover_text_underline/4) then
+    local text = ""
+    local text_underline = ""
+    for i=1, (timer * 4) do
+      text = sub(gameover_text, 1, i)
+      text_underline = sub(gameover_text_underline, 1, i)
+    end
+    print_centered(text, 60)
+    print_centered(text_underline, 60 + 4)
+  else
+    print_centered("GAME OVER!", 60)
+    print_centered("---- -----", 60 + 4)
+  end
+end
+
 -- CONSTRUCTOS
 
 function create_player(x, y)
@@ -491,6 +532,10 @@ function create_player(x, y)
     state = 'flying',
     shoot_timer = 0,
     shoot_cooldown = 0.2,
+    dmg_timer = 0,
+    dmg_cooldown = 1,
+    dmg_flick = false,
+    dmg_flick_tick = true,
     type = type.player,
     update = function(self)      
       local move_left = btn(key.left) and -2 or 0
@@ -534,6 +579,11 @@ function create_player(x, y)
           self.shoot_timer = 0
         end
       end
+
+      self.dmg_timer += (time() - last_time)
+      if self.dmg_timer > self.dmg_cooldown and self.dmg_flick == true then
+        self.dmg_flick = false
+      end
       
       if self.state == 'flying' then
         if time() - self.anim > .3 then
@@ -548,12 +598,26 @@ function create_player(x, y)
       end
     end,
     draw = function(self)
-      draw_sprite(self)      
+      if self.dmg_flick then 
+        if self.dmg_flick_tick then
+          self.dmg_flick_tick = false
+          return
+        else
+          self.dmg_flick_tick = true
+        end
+      end
+      draw_sprite(self)
     end,
     notify_collision = function(self, o)
       if o.type == type.carrot and self.life < 3 then
         self.life += 1
-      end   
+      elseif o.type == type.enemy or o.type == type.enemy_bullet or o.type == type.boss then
+        if self.dmg_timer > self.dmg_cooldown then
+          self.life -= 1
+          self.dmg_timer = 0
+          self.dmg_flick = true
+        end        
+      end
     end,
     is_dead = function(self)
       return (self.life <= 0) and true or false
@@ -868,6 +932,11 @@ function create_boss(x, y)
       if self.life == 30 then
         spr(10, self.x  - (self.w/2) + 3, self.y - (self.h/2), 2, 2)
       end
+      if self.active then
+        local life_offset = self.life > 0 and ((self.life * 60) / 30) or 0
+        rect(32, 98, 96, 110, 0)
+        rectfill(34, 100, 34 + life_offset, 108, 6)
+      end
     end,
     notify_collision = function(self, o)
       if o.type == 'bullet' then
@@ -1018,6 +1087,7 @@ function create_carrot(x, y)
     notify_collision = function(self, o)
       if o.type == 'player' then
         self.life -= 1
+        sfx(sound.carrot)
       end
     end,
     is_dead = function(self)
@@ -1281,6 +1351,7 @@ function create_new_instances()
 end
 
 function check_collision()
+  -- bullets
   for e in all(enemies) do
     for b in all(bullets) do
       if is_colliding(e, b) then
@@ -1299,15 +1370,35 @@ function check_collision()
     end
   end
 
+  -- player
+  for e in all(enemies) do
+    if is_colliding(e, player) then
+      e:notify_collision(player)
+      player:notify_collision(e)
+    end
+  end
+
   for i in all(items) do
     if is_colliding(i, player) then
       i:notify_collision(player)
       player:notify_collision(i)
     end
   end
+
+  for b in all(bullets) do
+    if is_colliding(b, player) then
+      b:notify_collision(player)
+      player:notify_collision(b)
+    end
+  end
 end
 
 function check_is_dead()
+  if player:is_dead() then
+    init_game_over()
+    _update = update_game_over
+    _draw = draw_game_over
+  end
   for b in all(bullets) do
     if b:is_dead() then
       del(bullets, b)
@@ -1538,14 +1629,14 @@ eeeee050505eeeeeeeeeeeeeeeeeeeee767776776766666665666566565555555055505505000000
 eee6666666666eeeeeeeeeeeeeeeeeee767776776766666665666566565555555055505505000000eeeeeeeeeeeeeeee66eeeeeeeeeeeee6eeeeeeeeeeeeeeee
 ee666066666066eeeeeeeeeeeeeeeeee767776776766666665666566565555555055505505000000eeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eeeeeeee6eee
 eee6606666606eeeeeeeeeeeeeeeeeee767776776766666665666566565555555055505505000000eeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eee66eee6eee
-ee666666006666eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eee66eee6eee
-eee6666666666eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eeeeeeee6eee
-eeeeeee060eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eeeeeeeeeeeeeeee
-66eee60000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeeeeeee6eeeee6eeeeee6eeee
-55e555555555ee5eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeeeee6eeeeeeee6666eeeeee
-565550000555005eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeeeee6eeeeeeeeeeeeeeeeeee
-665555000055006eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee6eeeeee6eeeeeeeeeeeeeeeeeeee
-eee555555555ee6eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee666666eeeeeeeeeeeeeeeeeeeee
+ee666666006666eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000eeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eee66eee6eee
+eee6666666666eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eee6eeeeeeee6eee
+eeeeeee060eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeee6eeeeeeeeeeeeee6eeeeeeeeeeeeeeee
+66eee60000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeeee6eeeeeeeeeeee6eeeee6eeeeee6eeee
+55e555555555ee5eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeeeee6eeeeeeeeee6eeeeeeee6666eeeeee
+565550000555005eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeeeeee6eeeeeeee6eeeeeeeeeeeeeeeeeee
+665555000055006eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee066666666666666666666660eeeeeeeeeeeeeeeeeeee6eeeeee6eeeeeeeeeeeeeeeeeeee
+eee555555555ee6eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000eeeeeeeeeeeeeeeeeeeee666666eeeeeeeeeeeeeeeeeeeee
 eeee66eeeeeeeeeeeeee55eeeeeeeeeeeeee77777777eeeeeeee77777777eeee000000000e00e0e0eeeeeeeeeeeeeeeeeeeeeeee677777eeeeeeeee6566eeeee
 eee67666eeeeeeeeeee56555eeeeeeeeeee7eeeeeeee7eeeeee7eeeeeeee7eee000000000e00e0e0eeeeeeeeeeeeeeeeeeeeee666666667eeeeeee766667eeee
 ee6776666667eeeeee5665555556eeeeee7eeeeeeeeee7eeee7eeeeeeeeee7ee000000000e00e0e0eeeeeeeeeeeeeeeeeeeee66666666667ee66676666667eee
@@ -1614,3 +1705,18 @@ __sfx__
 00030000390303e0403e0403904039040390303903039030390303902039020390100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0001000024530225301e5301b5301753014530125300f5300c5300953007520025200052000300021000210000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0002000012620106200f6200b62008620066200362000620036000160000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00030000090500a0500b0500d0500f050140501805022050283000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011000002e0502b0502405029050290502905027050270502e050290502405024050270502905029050290502b0502b05029050290502905027050240502e0502b0502b050290502905029050290500000000000
+001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000c00002000020000116300000000000116300000000000116302000011600116300000020000116302000020000116301160000000116300000000000116300000000000116300000000000116300000000000
+000f0000290502903027050270302405024050220502205024050240501f0001f0501f050220502205024050240502700027000290502905027050270502405024050220502203022050220301d0501d05000000
+010c0000270502705027050270500f6002705027050270502705018600270502705029050290502b0502b05029050290502705027050240502405022050220502b0502b050240502405000000000000000000000
+__music__
+00 44424344
+00 01424344
+00 01424344
+
