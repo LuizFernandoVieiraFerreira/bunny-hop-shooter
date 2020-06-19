@@ -7,7 +7,7 @@ __lua__
 function _init()
   change_color_pallete()
   init_global_variables()  
-  music(0)
+  -- music(0)
   init_menu()
   _update = update_menu
   _draw = draw_menu
@@ -921,18 +921,22 @@ function create_boss(x, y)
     start_y = y - 8,
     type = type.boss,
     update = function(self)
-      if self.active then
-        if self.life > 20 then
-          if self.going_up then
-            self.y -= self.v
-          else
-            self.y += self.v
-          end
+      if self.life == 30 and self.x > 112 then
+        self.x -= 1
+      else      
+        if self.active then      
+          if self.life > 20 then
+            if self.going_up then
+              self.y -= self.v
+            else
+              self.y += self.v
+            end
 
-          if self.y > self.start_y + self.range then
-            self.going_up = true
-          elseif self.y < self.start_y - self.range then
-            self.going_up = false
+            if self.y > self.start_y + self.range then
+              self.going_up = true
+            elseif self.y < self.start_y - self.range then
+              self.going_up = false
+            end
           end
         end
       end
@@ -949,7 +953,7 @@ function create_boss(x, y)
       end
     end,
     notify_collision = function(self, o)
-      if o.type == 'bullet' then
+      if o.type == 'bullet' and self.x <= 112 then
         if self.life > 0 then    
           self.life -= 1
         end
@@ -1357,7 +1361,7 @@ function create_new_instances()
 
   -- END
   if scroll_distance == TRANSITION_FINISH_PX + 128 then
-    boss = create_boss(128-16, 64)
+    boss = create_boss(128+16, 64)
   end
 end
 
