@@ -7,7 +7,7 @@ __lua__
 function _init()
   change_color_pallete()
   init_global_variables()  
-  -- music(0)
+  music(0)
   init_menu()
   _update = update_menu
   _draw = draw_menu
