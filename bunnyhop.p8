@@ -48,6 +48,7 @@ function init_global_variables()
     shot = 26,
     explosion = 27,
     carrot = 28,
+    boss_death = 29,
   }
   type = {
     player = 'player',
@@ -87,19 +88,10 @@ function init_menu()
 end
 
 function update_menu()
-  if btnp(key.a) then -- or btnp(key.b)
+  if btnp(key.a) then
     init_intro()
     _update = update_intro
     _draw = draw_intro
-    -- init_game()
-    -- _update = update_game
-    -- _draw = draw_game
-    -- init_ending()
-    -- _update = update_ending
-    -- _draw = draw_ending
-    -- init_game_over()
-    -- _update = update_game_over
-    -- _draw = draw_game_over
   end
   if btnp(key.b) then
     change_color_pallete()
@@ -140,7 +132,11 @@ function init_intro()
         cutscene:advance()
       end
     end,
-    update = function(self)      
+    update = function(self)
+      if btnp(key.b) then
+        change_color_pallete()
+        current_color_pallete = wrap(current_color_pallete, 5)
+      end
       if #self.scene > 0 then
         if self.step > #self.scene then
           step = 1
@@ -461,6 +457,15 @@ end
 function update_ending()
   track_current_time()
   track_last_time()
+  if btnp(key.b) then
+    change_color_pallete()
+    current_color_pallete = wrap(current_color_pallete, 5)
+  end
+  if btnp(key.a) and timer > (#ending_text_underline/4) then
+    init_menu()
+    _update = update_menu
+    _draw = draw_menu
+  end
 end
 
 function draw_ending()
@@ -493,6 +498,10 @@ end
 function update_game_over()
   track_current_time()
   track_last_time()
+  if btnp(key.b) then
+    change_color_pallete()
+    current_color_pallete = wrap(current_color_pallete, 5)
+  end
   if btnp(key.a) and timer > (#gameover_text_underline/4) then
     init_game()
     _update = update_game
@@ -955,6 +964,7 @@ function create_boss(x, y)
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))  
+          sfx(sound.boss_death)
           self.life = -1
         end
       end   
@@ -1732,7 +1742,7 @@ __sfx__
 0001000024530225301e5301b5301753014530125300f5300c5300953007520025200052000300021000210000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0002000012620106200f6200b62008620066200362000620036000160000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00030000090500a0500b0500d0500f050140501805022050283000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000002e0002b0002400029000290002900027000270002e000290002400024000270002900029000290002b0002b00029000290002900027000240002e0002b0002b000290002900029000290000000000000
+000a000013620186201b6201d6201d6201b620156200e62007620096200d62011620136200d6200a620096200c620116201462014620126200f62007620056200b62010620106200e62007620096200e6200f620
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
