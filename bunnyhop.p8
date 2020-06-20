@@ -7,7 +7,7 @@ __lua__
 function _init()
   change_color_pallete()
   init_global_variables()  
-  -- music(0)
+  music(0)
   init_menu()
   _update = update_menu
   _draw = draw_menu
@@ -928,10 +928,16 @@ function create_boss(x, y)
     flick_to_dash_count = 0,
     dashing = false,
     returning = false,
+    screen_flicking = false,
+    screen_flicking_count = 0,
+    screen_flicking_frames = 8,
+    shoot_instead_of_dash = true,
+    behaviour = 'wait',
     type = type.boss,
     update = function(self)
       if self.life == 30 and self.x > 112 then
         self.x -= 1
+        self.behaviour = 'shoot'
       else      
         if self.active then
           if not self.dashing and not self.returning then
@@ -948,17 +954,18 @@ function create_boss(x, y)
             end
           end
           
-          if self.life > 20 then            
+          if self.behaviour == 'shoot' or (self.behaviour == 'shoot_and_dash' and self.shoot_instead_of_dash) then
             self.shoot_timer += (time() - last_time)        
             if self.shoot_timer > self.shoot_cooldown then             
               add(bullets, create_boss_bullet(self.x - 12, self.y, 'up'))
               add(bullets, create_boss_bullet(self.x - 12, self.y, 'center'))
               add(bullets, create_boss_bullet(self.x - 12, self.y, 'down'))              
               self.shoot_timer = 0
+              self.shoot_instead_of_dash = false
             end
           end
           
-          if self.life > 10 and self.life < 20 then
+          if self.behaviour == 'dash' or (self.behaviour == 'shoot_and_dash' and not self.shoot_instead_of_dash) then          
             if self.dashing == false and self.returning == false then
               self.flick_count += 1
               if self.flick_count >= self.flick_frames then
@@ -986,23 +993,34 @@ function create_boss(x, y)
               if self.x >= (self.start_x - self.w) then
                 self.x = (self.start_x - self.w)
                 self.returning = false
+                self.shoot_instead_of_dash = true
               end
             end
-
           end
 
+          if self.behaviour == 'shoot_and_dash' then
+            self.screen_flicking_count += 1
+            if self.screen_flicking_count >= self.screen_flicking_frames then
+              self.screen_flicking = not self.screen_flicking
+              self.screen_flicking_count = 0              
+            end
+          end
         end
       end
     end,
     draw = function(self)
-      draw_sprite(self)      
-      if self.life == 30 or self.flicking then
-        spr(10, self.x  - (self.w/2) + 3, self.y - (self.h/2), 2, 2)
-      end
-      if self.active then
-        local life_offset = self.life > 0 and ((self.life * 60) / 30) or 0
-        rect(32, 98 + 8, 96, 110 + 8, 0)
-        rectfill(34, 100 + 8, 34 + life_offset, 108 + 8, 6)
+      if not self.screen_flicking then
+        draw_sprite(self)      
+        if self.life == 30 or self.flicking then
+          spr(10, self.x  - (self.w/2) + 3, self.y - (self.h/2), 2, 2)
+        end
+        if self.active then
+          local life_offset = self.life > 0 and ((self.life * 60) / 30) or 0
+          rect(32, 98 + 8, 96, 110 + 8, 0)
+          rectfill(34, 100 + 8, 34 + life_offset, 108 + 8, 6)
+        end
+      else
+        rectfill(0, 16, 127, 127, 0)
       end
     end,
     notify_collision = function(self, o)
@@ -1012,7 +1030,13 @@ function create_boss(x, y)
         end
         if self.life == 29 then
           self.active = true
+        elseif self.life == 20 then
+          self.behaviour = 'dash'
+        elseif self.life == 10 then
+          self.behaviour = 'shoot_and_dash'
         elseif self.life == 0 then
+          self.active = false
+          self.screen_flicking = false
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
           add(foregrounds, create_explosion(self.x - 16 + rnd(32), self.y - 16 + rnd(32)))
