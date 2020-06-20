@@ -7,7 +7,7 @@ __lua__
 function _init()
   change_color_pallete()
   init_global_variables()  
-  music(0)
+  -- music(0)
   init_menu()
   _update = update_menu
   _draw = draw_menu
@@ -442,7 +442,7 @@ function draw_game()
   foreach(foregrounds, function(obj) obj:draw() end)
   draw_hud()
 
-  print(scroll_distance, 2, 122)
+  -- print(scroll_distance, 2, 122)
 end
 
 -- ENDING
@@ -584,7 +584,7 @@ function create_player(x, y)
       local shot = btnp(key.a) -- or btnp(key.b)
       if self.shoot_timer > self.shoot_cooldown then        
         if shot then
-          add(bullets, create_bullet(self.x, self.y, self.w, self.h))
+          add(bullets, create_bullet(self.x + 8, self.y + 4, self.w, self.h))
           sfx(sound.shot)          
           self.shoot_timer = 0
         end
@@ -773,7 +773,7 @@ function create_fox(x, y, behaviour)
       if self.behaviour.type == 'up_down_shoot' then
         self.shoot_timer += (time() - last_time)        
         if self.shoot_timer > self.shoot_cooldown then             
-          add(bullets, create_enemy_bullet(self.x, self.y, self.w, self.h, 'fox'))               
+          add(bullets, create_enemy_bullet(self.x - self.w/2, self.y + self.h/2, self.w, self.h, 'fox'))               
           self.shoot_timer = 0
         end
       end
@@ -820,7 +820,7 @@ function create_alien(x, y, behaviour)
       if self.behaviour.type == 'shoot' then
         self.shoot_timer += (time() - last_time)        
         if self.shoot_timer > self.shoot_cooldown then             
-          add(bullets, create_enemy_bullet(self.x, self.y, self.w, self.h, 'alien'))               
+          add(bullets, create_enemy_bullet(self.x - self.w/2, self.y + self.h/4, self.w, self.h, 'alien'))               
           self.shoot_timer = 0
         end
       end
@@ -917,15 +917,24 @@ function create_boss(x, y)
     life = 30,
     active = false,
     going_up = true,
-    range = 32,
-    start_y = y - 8,
+    range = 24,
+    start_x = x,
+    start_y = y,
+    shoot_timer = 0,
+    shoot_cooldown = 1.3,
+    flicking = false,
+    flick_count = 0,
+    flick_frames = 10,
+    flick_to_dash_count = 0,
+    dashing = false,
+    returning = false,
     type = type.boss,
     update = function(self)
       if self.life == 30 and self.x > 112 then
         self.x -= 1
       else      
-        if self.active then      
-          if self.life > 20 then
+        if self.active then
+          if not self.dashing and not self.returning then
             if self.going_up then
               self.y -= self.v
             else
@@ -938,18 +947,62 @@ function create_boss(x, y)
               self.going_up = false
             end
           end
+          
+          if self.life > 20 then            
+            self.shoot_timer += (time() - last_time)        
+            if self.shoot_timer > self.shoot_cooldown then             
+              add(bullets, create_boss_bullet(self.x - 12, self.y, 'up'))
+              add(bullets, create_boss_bullet(self.x - 12, self.y, 'center'))
+              add(bullets, create_boss_bullet(self.x - 12, self.y, 'down'))              
+              self.shoot_timer = 0
+            end
+          end
+          
+          if self.life > 10 and self.life < 20 then
+            if self.dashing == false and self.returning == false then
+              self.flick_count += 1
+              if self.flick_count >= self.flick_frames then
+                self.flicking = not self.flicking
+                self.flick_count = 0
+                self.flick_to_dash_count += 1
+                if self.flick_to_dash_count == 3 then
+                  self.flick_to_dash_count = 0
+                  self.flicking = true
+                  self.dashing = true
+                end
+              end
+            end
+
+            if self.dashing then
+              self.x -= 4
+              if self.x <= (self.w/2) then
+                self.dashing = false
+                self.returning = true
+              end              
+            end
+
+            if self.returning then
+              self.x += 2
+              if self.x >= (self.start_x - self.w) then
+                self.x = (self.start_x - self.w)
+                self.returning = false
+              end
+            end
+
+          end
+
         end
       end
     end,
     draw = function(self)
       draw_sprite(self)      
-      if self.life == 30 then
+      if self.life == 30 or self.flicking then
         spr(10, self.x  - (self.w/2) + 3, self.y - (self.h/2), 2, 2)
       end
       if self.active then
         local life_offset = self.life > 0 and ((self.life * 60) / 30) or 0
-        rect(32, 98, 96, 110, 0)
-        rectfill(34, 100, 34 + life_offset, 108, 6)
+        rect(32, 98 + 8, 96, 110 + 8, 0)
+        rectfill(34, 100 + 8, 34 + life_offset, 108 + 8, 6)
       end
     end,
     notify_collision = function(self, o)
@@ -985,8 +1038,8 @@ end
 
 function create_bullet(x, y, w, h)
   return {
-    x = x + w/2,
-    y = y + h/4,
+    x = x,
+    y = y,
     w = 8,
     h = 8,
     v = 3,
@@ -1016,12 +1069,10 @@ function create_enemy_bullet(x, y, w, h, shooter_type)
     sp = 32
   elseif shooter_type == 'alien' then
     sp = 84
-  elseif shooter_type == 'boss' then
-    sp = 48
   end
   return {
-    x = x - w/2,
-    y = y + h/4,
+    x = x,
+    y = y,
     w = 8,
     h = 8,
     v = 2,
@@ -1030,6 +1081,46 @@ function create_enemy_bullet(x, y, w, h, shooter_type)
     type = type.enemy_bullet,
     update = function(self)
       self.x -= self.v
+    end,
+    draw = function(self)
+      draw_sprite(self)
+    end,
+    notify_collision = function(self, o)
+      if o.type == 'player' then
+        self.life -= 1
+      end
+    end,
+    is_dead = function(self)
+      return (self.life <= 0) and true or false
+    end,
+  }
+end
+
+function create_boss_bullet(x, y, shoot_type)
+  return {
+    x = x,
+    y = y,
+    w = 8,
+    h = 8,
+    v = 2,
+    sp = 48,
+    life = 1,
+    type = type.enemy_bullet,
+    shoot_type = shoot_type,
+    update = function(self)
+      if shoot_type == 'up' then
+        self.x -= self.v
+        if self.x > 64 then
+          self.y -= self.v
+        end
+      elseif shoot_type == 'down' then
+        self.x -= self.v
+        if self.x > 64 then
+          self.y += self.v
+        end
+      else
+        self.x -= self.v
+      end
     end,
     draw = function(self)
       draw_sprite(self)
@@ -1361,7 +1452,7 @@ function create_new_instances()
 
   -- END
   if scroll_distance == TRANSITION_FINISH_PX + 128 then
-    boss = create_boss(128+16, 64)
+    boss = create_boss(128+16, 64+8)
   end
 end
 
@@ -1404,6 +1495,13 @@ function check_collision()
     if is_colliding(b, player) then
       b:notify_collision(player)
       player:notify_collision(b)
+    end
+  end
+
+  if boss then
+    if is_colliding(player, boss) then
+      player:notify_collision(boss)
+      boss:notify_collision(player)
     end
   end
 end
@@ -1520,7 +1618,16 @@ function format_life()
 end
 
 function is_colliding(a, b)
-  return a.x < (b.x + b.w) and (a.x + a.w) > b.x and a.y < (b.y + b.h) and (a.y + a.h) > b.y
+  return 
+    (a.x - a.w/2) < (b.x + b.w/2) and
+    (a.x + a.w/2) > (b.x - b.w/2) and 
+    (a.y - a.h/2) < (b.y + b.h/2) and 
+    (a.y + a.h/2) > (b.y - b.h/2)
+  -- return 
+    -- a.x < (b.x + b.w) and
+    -- (a.x + a.w) > b.x and 
+    -- a.y < (b.y + b.h) and 
+    -- (a.y + a.h) > b.y
 end
 
 function track_current_time()
