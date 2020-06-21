@@ -15,9 +15,9 @@ In the game you control a bunny that flies in his airplane to save his beloved w
 
 ## Gameplay
 
-![Start Gif](imgs/start.gif)
-![Mid Gif](imgs/mid.gif)
-![End Gif](imgs/end.gif)
+![Start Gif](imgs/start.gif | width=128)
+![Mid Gif](imgs/mid.gif | width=128)
+![End Gif](imgs/end.gif  | width=128)
 
 ## What is Pico 8
 
